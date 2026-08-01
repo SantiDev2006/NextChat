@@ -2,7 +2,6 @@
 
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { error } from "console";
 
 export async function searchUsers(searchTerm?: string) {
     const session = await auth();
@@ -90,5 +89,86 @@ export async function sendFriendRequest(receiverId:string) {
     } catch(error){
         console.error("Error sending friend request: ", error)
         return {error:"Something went wrong. Please try again."}
+    }
+}
+
+// Fetch pending requests sent to the current user
+
+export async function getPendingFriendRequests() {
+    const session = await auth();
+    if(!session?.user?.email) return [];
+
+    const currentUser = await prisma.user.findUnique({
+        where: {
+            email: session.user.email
+        }
+    });
+
+    if(!currentUser) return [];
+
+    try {
+        const requests = await prisma.friendRequest.findMany({
+            where: {
+                receiverId: currentUser.id,
+                status: "PENDING"
+            },
+            // fetch the sender's profile info
+            include: {
+                sender: {
+                    select: {
+                        id: true,
+                        name: true,
+                        username: true,
+                        image: true
+                    }
+                }
+            }
+        });
+        
+        return requests;
+
+    } catch (error) {
+        console.error("Failed to fetch pending requests: ", error);
+        return [];
+    }
+}
+
+// Accept a friend request
+
+export async function acceptFriendRequest(requestID:string) {
+    const session = await auth();
+    if(!session?.user?.email) return {error:"Unauthorized"};
+
+    try {
+        // update status to "ACCEPTED"
+        await prisma.friendRequest.update({
+            where: {id: requestID},
+            data: {status: "ACCEPTED"}
+        });
+        
+        return { success:true };
+
+    } catch (error) {
+        console.error("Failed to accept request");
+        return { error: "Failed to accept request" };
+    }
+}
+
+// Reject a friend request
+
+export async function rejectFriendRequest(requestId:string) {
+    const session = await auth();
+    if(!session?.user?.email) return { error:"Unauthorized" };
+
+    try {
+        // Deleting the record keeps the database clean and allows them to re-send later
+        await prisma.friendRequest.delete({
+            where: {id: requestId}
+        });
+
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to reject request: ", error);
+        return { error:"Failed to reject request" };
     }
 }
