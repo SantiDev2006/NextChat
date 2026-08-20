@@ -84,10 +84,12 @@ export default async function Sidebar() {
           <p className='text-xs text-zinc-500 px-2 py-4 text-center'>No friends yet. :/</p>
         ) : (
           friends.map(friend => (
-            <div
-            key={friend.id}  
-            className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-zinc-800 cursor-pointer group transition-colors">
-              <div className="relative shrink-0">
+            <Link
+              key={friend.id}
+              href={`/chat/${friend.id}`}
+              className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-zinc-800 cursor-pointer group transition-colors"
+            >
+                <div className="relative shrink-0 flex items-center justify-center">
                 {/* Friend Avatar */}
                 {friend.image ? (
                   <Image
@@ -99,7 +101,7 @@ export default async function Sidebar() {
                   />
                 ): (
                   <div className='flex w-8 h-8 bg-zinc-700 rounded-full items-center justify-center text-sm font-medium text-white group-hover:ring-2 group-hover:ring-indigo-400 transition-all'>
-                    {getInitials(friend.name || friend.username || "Unknown")}
+                  {getInitials(friend.name || friend.username || "Unknown")}
                   </div>
                 )}
                 <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 rounded-full border-[3px] border-zinc-900 z-10"></div>
@@ -107,7 +109,7 @@ export default async function Sidebar() {
               <span className="truncate font-medium text-zinc-300">
                 {friend.name || friend.username}
               </span>
-            </div>
+            </Link>
           ))
         )}
       </div>
