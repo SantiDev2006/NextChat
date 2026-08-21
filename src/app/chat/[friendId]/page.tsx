@@ -4,7 +4,6 @@ import ChatWindow from '@/components/ChatWindow';
 import { prisma } from '@/lib/prisma';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
-import React from 'react'
 
 export default async function ChatPage({ params }: { params: { friendId: string } }) {
     const p = await params;

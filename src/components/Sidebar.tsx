@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { auth, signOut } from '@/auth'
-import FriendsIcon from '@/public/svg/friends.svg'
 import Image from 'next/image';
 import logoutIcon from '@/public/svg/logout.svg';
 import { prisma } from '@/lib/prisma';
@@ -9,10 +8,6 @@ import FriendsLink from './FriendsLink';
 export default async function Sidebar() {
   const session = await auth();
   const user = session?.user;
-
-  // Set up fallbacks in case data is missing
-  const displayName = user?.name || "Unknown User";
-  const avatarImage = user?.image;
 
   // function to generate initials (e.g., "Santiago Peralta" -> "SP")
   const getInitials = (name: string) => {
@@ -26,16 +21,20 @@ export default async function Sidebar() {
   let friends: any[] = [];
   let pendingCount = 0;
 
+  let dbUser: Awaited<ReturnType<typeof prisma.user.findUnique>> | null = null;
+
   if(user?.email){
-    const dbUser = await prisma.user.findUnique({
+    dbUser = await prisma.user.findUnique({
       where: {email:user.email}
     });
 
     if (dbUser) {
+      const currentUserId = dbUser.id;
+
       // count pending requests
       pendingCount = await prisma.friendRequest.count({
         where: {
-          receiverId: dbUser.id,
+          receiverId: currentUserId,
           status: "PENDING",
         }
       });
@@ -44,9 +43,9 @@ export default async function Sidebar() {
       const acceptedRequests = await prisma.friendRequest.findMany({
         where: {
           OR: [{
-            senderId: dbUser.id
+            senderId: currentUserId
           }, {
-            receiverId: dbUser.id
+            receiverId: currentUserId
           }],
           status: "ACCEPTED"
         },
@@ -57,12 +56,16 @@ export default async function Sidebar() {
       });
 
       friends = acceptedRequests.map(
-        req => req.senderId === dbUser.id
+        req => req.senderId === currentUserId
         ? req.receiver
         : req.sender
       );
     }
   }
+
+  // Set up fallbacks in case data is missing
+  const displayName = dbUser?.name || dbUser?.username || user?.name || "Unknown User";
+  const avatarImage = dbUser?.image || user?.image;
 
   return (
     <aside className="flex flex-col w-72 bg-zinc-900 h-screen border-r border-zinc-800 shrink-0">
