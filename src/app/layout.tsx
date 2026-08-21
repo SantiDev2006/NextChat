@@ -23,14 +23,9 @@ export default async function RootLayout({
       lang="en"
     >
       <body className={`${inter.className} flex h-screen bg-zinc-800 overflow-hidden text-zinc-100 antialiased`}>
-        {session ? (
-          <>
-          <Sidebar />
-          {children}
-          </>
-        ) : (
-          <Login />
-        )}
+        {session && <Sidebar/>}
+
+        {children}
       </body>
     </html>
   );

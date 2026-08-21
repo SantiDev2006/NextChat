@@ -1,6 +1,14 @@
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
 
 export default async function Home() {
+  const session = await auth();
+
+  if(!session){
+    redirect("/login");
+  }
+
   return (
     <section className="flex flex-col flex-1 min-w-0">
       <header className="flex h-14 items-center px-6 border-b border-zinc-700 bg-zinc-800 shrink-0 shadow-sm">

@@ -88,7 +88,7 @@ export default function AddFriend() {
                 )}
               </div>
               <div>
-                <p className="font-medium text-zinc-100">{user.name || "Unknown"}</p>
+                <p className="font-medium text-zinc-100">{user.name || user.username || "Unknown"}</p>
                 <p className="text-xs text-zinc-400">@{user.username || "nousername"}</p>
               </div>
             </div>
