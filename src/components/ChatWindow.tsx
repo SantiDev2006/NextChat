@@ -5,6 +5,10 @@ import sendIcon from '@/public/svg/send.svg'
 import Image from 'next/image';
 import { sendMessage } from '@/actions/chat';
 
+import { io, Socket } from "socket.io-client";
+
+let socket: Socket;
+
 type Message = {
     id: string;
     body: string;
@@ -29,6 +33,28 @@ export default function ChatWindow({
     const [inputText, setInputText] = useState("");
     const bottomRef = useRef<HTMLDivElement>(null);
 
+    useEffect(() => {
+        const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:3001";
+      socket = io(wsUrl);
+
+      socket.emit("join_chat", conversationId);
+        console.log(conversationId);
+      socket.on("receive_message", (newMessage:Message)=>{
+        setMessages(prev=>{
+            // Prevent duplicates in case React Strict Mode fires twice
+            if(prev.some(msg => msg.id === newMessage.id)) return prev;
+            return [...prev, newMessage];
+        })
+        console.log(newMessage.body);
+        
+      })
+    
+      return () => {
+        socket.disconnect();
+      }
+    }, [conversationId])
+    
+
     useEffect(()=>{
         bottomRef.current?.scrollIntoView({behavior: "smooth"});
     }, [messages]);
@@ -44,7 +70,14 @@ export default function ChatWindow({
         const res = await sendMessage(conversationId, TextToSend);
 
         if(res.message) {
+            // 1. Update
             setMessages((prev) => [...prev, res.message as Message]);
+
+            // 2. Broadcast
+            socket.emit("send_message", {
+                room: conversationId,
+                message:res.message
+            });
         }
     }
 
