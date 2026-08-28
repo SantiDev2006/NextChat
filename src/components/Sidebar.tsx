@@ -4,6 +4,7 @@ import Image from 'next/image';
 import logoutIcon from '@/public/svg/logout.svg';
 import { prisma } from '@/lib/prisma';
 import FriendsLink from './FriendsLink';
+import SidebarFriends from './SidebarFriends';
 
 export default async function Sidebar() {
   const session = await auth();
@@ -83,37 +84,8 @@ export default async function Sidebar() {
         </p>
 
         {/* friends list */}
-        {friends.length === 0 ? (
-          <p className='text-xs text-zinc-500 px-2 py-4 text-center'>No friends yet. :/</p>
-        ) : (
-          friends.map(friend => (
-            <Link
-              key={friend.id}
-              href={`/chat/${friend.id}`}
-              className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-zinc-800 cursor-pointer group transition-colors"
-            >
-                <div className="relative shrink-0 flex items-center justify-center">
-                {/* Friend Avatar */}
-                {friend.image ? (
-                  <Image
-                    src={friend.image}
-                    alt={friend.name || "User"}
-                    width={32}
-                    height={32}
-                    className='w-8 h-8 rounded-full object-cover group-hover:ring-2 group-hover:ring-indigo-400 transition-all'
-                  />
-                ): (
-                  <div className='flex w-8 h-8 bg-zinc-700 rounded-full items-center justify-center text-sm font-medium text-white group-hover:ring-2 group-hover:ring-indigo-400 transition-all'>
-                  {getInitials(friend.name || friend.username || "Unknown")}
-                  </div>
-                )}
-                <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 rounded-full border-[3px] border-zinc-900 z-10"></div>
-              </div>
-              <span className="truncate font-medium text-zinc-300">
-                {friend.name || friend.username}
-              </span>
-            </Link>
-          ))
+        {dbUser && (
+          <SidebarFriends friends={friends} currentUserId={dbUser.id} />
         )}
       </div>
 
