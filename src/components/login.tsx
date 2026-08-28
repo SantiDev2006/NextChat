@@ -37,23 +37,32 @@ export default function Login() {
   }
 
   return (
-      <main className="flex min-h-screen w-full items-center justify-center bg-zinc-900 p-4">
-        <div className="w-full max-w-sm rounded-xl bg-zinc-800 p-8 shadow-lg border border-zinc-700">
+      <main className="flex relative min-h-screen w-full items-center justify-center bg-zinc-900 p-4 overflow-hidden">
+
+        {/* Subtle Ambient Background Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-full bg-indigo-600/25 w-125 h-125 rounded-full blur-3xl pointer-events-none animate-pulse-slow transition-all duration-500"></div>
+
+        <div className="relative w-full max-w-sm z-10 rounded-xl bg-zinc-800/80 p-8 shadow-lg border border-zinc-700 backdrop-blur-2xl animate-fade-in-down">
           <h1 className="mb-6 text-center text-2xl font-bold text-zinc-100">
-            Next<span className="text-indigo-500">Chat</span> Login
+            Next<span className=" text-transparent bg-clip-text bg-linear-to-r from-indigo-400 to bg-purple-500 bg-size-[200%_auto] animate-gradient">Chat</span> Login
           </h1>
 
           {/* Google OAuth Provider */}
-          <button
-          onClick={()=> signIn("google", {callbackUrl:"/"})}
-          className="flex w-full mb-6 py-2 px-4 rounded-md bg-white text-zinc-900 font-semibold transition hover:bg-zinc-200 items-center justify-center gap-2">
-            <Image
-            src={GoogleIcon}
-            alt="G"
-            width={18}
-            height={18}/>
-            Sign in with Google
-          </button>
+          <div className="animate-subtitle">
+            <button
+              onClick={()=> signIn("google", {callbackUrl:"/"})}
+              className="flex items-center justify-center w-full gap-2 mb-6 py-2 px-4 rounded-md bg-white text-zinc-900 font-semibold transition-all duration-300 hover:bg-zinc-200 hover:-translate-y-0.5 hover:scale-105 active:scale-95 shadow-sm cursor-pointer">
+
+               <Image
+                src={GoogleIcon}
+                alt="G"
+                width={18}
+                height={18}/>
+
+                Sign in with Google
+
+            </button>
+          </div>
 
           <div className="relative mb-6 flex items-center py-2">
             <div className="grow border-t border-zinc-600"></div>
@@ -64,7 +73,7 @@ export default function Login() {
           {/* Credentials Provider */}
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-4"
+            className="flex flex-col gap-4 animate-buttons"
           >
             
             {error && (
@@ -81,7 +90,7 @@ export default function Login() {
                 name="username"
                 type="text"
                 required
-                className="w-full rounded-md border border-zinc-600 bg-zinc-700 p-2 text-zinc-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-md border border-zinc-600 bg-zinc-700 p-2 text-zinc-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
                 placeholder="Enter your username"
               />
             </div>
@@ -94,7 +103,7 @@ export default function Login() {
                 name="password"
                 type="password"
                 required
-                className="w-full rounded-md border border-zinc-600 bg-zinc-700 p-2 text-zinc-100 focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-md border border-zinc-600 bg-zinc-700 p-2 text-zinc-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
                 placeholder="••••••••"
               />
             </div>
@@ -102,13 +111,13 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-2 w-full rounded-md bg-blue-600 py-2 px-4 font-semibold text-white transition hover:bg-blue-700"
+              className="mt-2 w-full rounded-md bg-indigo-600 py-2 px-4 font-semibold text-white hover:bg-indigo-500 shadow-[0_0_15px_rgba(79,70,229,0.2)] hover:shadow-[0_0_25px_rgba(79,70,229,0.4)] hover:-translate-y-1 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:pointer-events-none disabled:transform-none transition-all duration-300"
             >
               {loading ? "Signing in..." : "Sign in"}
             </button>
           </form>
 
-          <p className="mt-6 text-sm text-zinc-400 text-center">
+          <p className="mt-6 text-sm text-zinc-400 text-center animate-buttons">
             New to NextChat?{" "}
             <Link
             href="/signup"

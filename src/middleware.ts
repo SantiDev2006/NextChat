@@ -5,16 +5,17 @@ export default auth((req)=>{
     const isloggedIn = !!req.auth;
     const {pathname} = req.nextUrl;
 
-    //which routes don't require you to be logged in
-    const isPublicRoute = pathname == "/login" || pathname == "/signup";
+    const isAuthRoute = pathname === "/login" || pathname === "/signup";
+    //hybrid route—anyone can see it
+    const isPublicRoute = pathname === "/";
 
-    // If  NOT logged in, and trying to access a private route, kick them to /login
-    if(!isloggedIn && !isPublicRoute){
+    // Unlogged users trying to access get kicked to login
+    if(!isloggedIn && !isPublicRoute && !isAuthRoute){
         return NextResponse.redirect(new URL("/login", req.nextUrl));
     }
 
-    // If logged in, but trying to go to /login or /signup, kick them to the app
-    if(isloggedIn && isPublicRoute){
+    // Logged-in users trying to go to /login get kicked
+    if(isloggedIn && isAuthRoute){
         return NextResponse.redirect(new URL("/", req.nextUrl));
     }
 
