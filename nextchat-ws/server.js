@@ -10,13 +10,31 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000"],
+    origin: "*",
     methods: ["GET", "POST"],
   },
 });
 
+let onlineUsers = [];
+
+const addUser = (userId, socketId)=>{
+  if(!onlineUsers.some(user=>user.userId === userId)){
+    onlineUsers.push({userId,socketId});
+  }
+}
+
+const removeUser = socketId=>{
+  onlineUsers = onlineUsers.filter(user=>user.socketId !== socketId);
+}
+
 io.on("connection", (socket)=>{
   console.log(`User Connected: ${socket.id}`);
+
+  socket.on("add_new_user", userId=>{
+    addUser(userId, socket.id);
+
+    io.emit("get_online_users", onlineUsers)
+  });
 
   //user opening a specific chat window
   socket.on("join_chat", (conversationID)=>{
@@ -31,6 +49,8 @@ io.on("connection", (socket)=>{
   })
 
   socket.on("disconnect", () => {
+    removeUser(socket.id);
+    io.emit("get_online_users", onlineUsers);
     console.log(`User Disconnected: ${socket.id}`);
   });
 });
